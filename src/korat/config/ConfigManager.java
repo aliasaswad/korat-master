@@ -61,7 +61,7 @@ public class ConfigManager {
     /**
      * Whether or not to jump through the CV to reduce the "Un-needed" explored structurs. 
      */
-    public boolean jump;
+    public long jump; //public boolean jump;
     /**
      * Array of arguments to be passed to the finitization method. 
      */

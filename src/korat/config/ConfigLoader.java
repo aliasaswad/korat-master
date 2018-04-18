@@ -53,9 +53,9 @@ public class ConfigLoader {
      * ================================================================================= */
 
     // MyOption(
-    //String opt, String longOpt, String description,                    boolean isRequired,boolean hasArg, String argName, String argDefValue)
+    //String opt, String longOpt, String description,       boolean isRequired,boolean hasArg, String argName, String argDefValue)
     public static final MyOption JUMP = new MyOption( 
-        "j", "jump", "jump in between CV to reduce the time for unneeded structures", false, false, "jmp", "false");//Alyas
+        "j", "jump", "jump in between CV to reduce the time for unneeded structures", false, true, "num", "-1");//Alyas
 
     public static final MyOption ARGS = new MyOption( 
         "a", "args", "comma separated list of arguments to be given to finitization method", true, true, "params", null);

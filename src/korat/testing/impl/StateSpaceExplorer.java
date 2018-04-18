@@ -41,15 +41,17 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
 
     protected IIntList changedFields;
 
-    protected boolean alyasF = false;
+    protected boolean isSecondCV = false;
 
-    protected boolean alyasFrstPrdOk = false;
+    //protected boolean alyasFrstPrdOk = false;
     
     protected int prevlastAccessedFieldIndex = 0;
-    protected int loop = 0;
+
 
     protected ConfigManager config = ConfigManager.getInstance();//alyas
-    protected boolean toJump = config.jump;
+
+    //protected boolean toJump = config.jump;
+    protected long toJump = config.jump;
 
     public StateSpaceExplorer(IFinitization ifin) {
         Finitization fin = (Finitization)ifin; 
@@ -123,10 +125,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
         boolean nextCandidateFound = false;
         
         changedFields.clear();
-        //System.out.println(config.jump);
-        //if (toJump) System.out.println(toJump);
-        //else System.out.println(toJump);
-        
+      
         while (!nextCandidateFound) { //while true then continue in loop
             if (accessedFields.isEmpty())
                 break; // candidate not found - search is completed
@@ -136,8 +135,6 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
             FieldDomain fDomain = stateSpace.getFieldDomain(lastAccessedFieldIndex);
             int maxInstanceIndexForFieldDomain = fDomain.getNumberOfElements() - 1;
             int currentInstanceIndex = candidateVector[lastAccessedFieldIndex];
-
-
             
             if (lastAccessedField.isExcludedFromSearch()){ //array fields are exempt from search
                 nextCandidateFound = false;      
@@ -161,52 +158,62 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                 
                 if (fDomain.isPrimitiveType()
                         || !cDomain.isIncludedInIsomorphismChecking()) {
+                    //if(!fDomain.isPrimitiveType()) System.out.println("primitive");
                 //1
-                if(toJump){
-                    if (alyasF  && (lastAccessedFieldIndex > maxInstanceIndexForFieldDomain) 
-                        && lastAccessedFieldIndex < prevlastAccessedFieldIndex && !fDomain.isPrimitiveType()) {// && alyasFrstPrdOk
-                        int max = 0;
-                        for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
-                            if (candidateVector[ktr] > max && candidateVector[ktr] != maxInstanceIndexForFieldDomain)
-                                max = candidateVector[ktr]; 
-                        }
-                        if(candidateVector[lastAccessedFieldIndex] == max) 
-                            //candidateVector[lastAccessedFieldIndex] = max;
-                            candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
-                        else candidateVector[lastAccessedFieldIndex] = max;
-                    }
-                    else candidateVector[lastAccessedFieldIndex]++;
-
-                    if (alyasF) {
-                        //if (maxInstanceIndexForFieldDomain % 2 == 0) candidateVector[lastAccessedFieldIndex]++;
-                        //else candidateVector[lastAccessedFieldIndex] = candidateVector[lastAccessedFieldIndex] + 2;
-                        if (TestCradle.predicateOK && !fDomain.isPrimitiveType()) {
-                            int max = 0;
-                            for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
-                                if (candidateVector[ktr] > max && candidateVector[ktr] != maxInstanceIndexForFieldDomain)
-                                    max = candidateVector[ktr]; 
+                    if(toJump >= 0 && toJump < 10){
+                //if(toJump){
+                 //switch (toJump) {
+                 //   case 0:
+                           if (isSecondCV &&
+                                lastAccessedFieldIndex > maxInstanceIndexForFieldDomain
+                                && lastAccessedFieldIndex < prevlastAccessedFieldIndex
+                                && !fDomain.isPrimitiveType()
+                                /*|| TestCradle.predicateOK*/ ){  
+                                //isSecondCV req, (lastAccessedFieldIndex > maxInstanceIndexForFieldDomain) opt !fDomain.isPrimitiveType() opt
+                                //, && lastAccessedFieldIndex < prevlastAccessedFieldIndex opt
+                                int max = 0;
+                                for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
+                                    if (candidateVector[ktr] > max && candidateVector[ktr] != maxInstanceIndexForFieldDomain)
+                                    max = candidateVector[ktr];
+                                }
+                                if(candidateVector[lastAccessedFieldIndex] == max) 
+                                //candidateVector[lastAccessedFieldIndex] = max;
+                                    candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
+                                else candidateVector[lastAccessedFieldIndex] = max;
                             }
-                            candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
-                            alyasFrstPrdOk = true;
-                        }
-                    }
-                    alyasF = true;
-                    if (candidateVector[lastAccessedFieldIndex] > maxInstanceIndexForFieldDomain) {
-                        candidateVector[lastAccessedFieldIndex] = 0;
-                        changedFields.add(lastAccessedFieldIndex);
-                        nextCandidateFound = false;
-                    }else {
-                
+                            else candidateVector[lastAccessedFieldIndex]++;
+                    
+                            if (isSecondCV) {
+                                //if (maxInstanceIndexForFieldDomain % 2 == 0) candidateVector[lastAccessedFieldIndex]++; //even jump
+                                //else candidateVector[lastAccessedFieldIndex] = candidateVector[lastAccessedFieldIndex] + 2;
+                                if (TestCradle.predicateOK && !fDomain.isPrimitiveType()) {
+                                    int max = 0;
+                                    for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
+                                        if (candidateVector[ktr] > max && candidateVector[ktr] != maxInstanceIndexForFieldDomain)
+                                        max = candidateVector[ktr]; 
+                                    }
+                                    candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
+                                    //alyasFrstPrdOk = true;
+                                }
+                            }
+                    
+                            isSecondCV = true;
+                            if (candidateVector[lastAccessedFieldIndex] > maxInstanceIndexForFieldDomain) {
+                                candidateVector[lastAccessedFieldIndex] = 0;
+                                changedFields.add(lastAccessedFieldIndex);
+                                nextCandidateFound = false;
+                            }else {
+                                changedFields.add(lastAccessedFieldIndex);
+                                nextCandidateFound = true;
+                            }
+                    //        break;    
+                    }//end if toJump
+                    else{
+                        candidateVector[lastAccessedFieldIndex]++;
                         changedFields.add(lastAccessedFieldIndex);
                         nextCandidateFound = true;
                     }
-                }
-                else{
-                    candidateVector[lastAccessedFieldIndex]++;
-                    changedFields.add(lastAccessedFieldIndex);
-                    nextCandidateFound = true;
-                }
-                //2
+                //2 end check for premitive & !Iso
                 } else { //We looking for Objs fields CV
 
                     for (int i = 0; i < numberOfAccessedFields; i++) {
@@ -226,32 +233,30 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                     int currentInstanceIndexInClassDomain = fDomain.getClassDomainIndexFor(currentInstanceIndex);
                     //3
                     if (currentInstanceIndexInClassDomain <= maxInstanceIndexInClassDomain) {
-                    if (toJump){
-                        int max = 0;
-                        for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
-                            if (candidateVector[ktr] > max) max = candidateVector[ktr];
-
-                        }
-                        candidateVector[lastAccessedFieldIndex]++;
-                        if (TestCradle.predicateOK && lastAccessedFieldIndex < prevlastAccessedFieldIndex) {
-                            candidateVector[lastAccessedFieldIndex] = max;
-                        }
-                        if (candidateVector[lastAccessedFieldIndex] > maxInstanceIndexForFieldDomain) { 
-                            candidateVector[lastAccessedFieldIndex] = 0;
-                            changedFields.add(lastAccessedFieldIndex);
-                            nextCandidateFound = false;
+                        if (toJump >= 0 && toJump < 10){
+                            int max = 0;
+                            for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
+                                if (candidateVector[ktr] > max) max = candidateVector[ktr];
+                            }
+                            candidateVector[lastAccessedFieldIndex]++;
+                            if (TestCradle.predicateOK && lastAccessedFieldIndex < prevlastAccessedFieldIndex) {
+                                candidateVector[lastAccessedFieldIndex] = max;
+                            }
+                            if (candidateVector[lastAccessedFieldIndex] > maxInstanceIndexForFieldDomain) { 
+                                candidateVector[lastAccessedFieldIndex] = 0;
+                                changedFields.add(lastAccessedFieldIndex);
+                                nextCandidateFound = false;
+                            }else {
+                                changedFields.add(lastAccessedFieldIndex);
+                                nextCandidateFound = true;
+                            }//ALYAS
                         }else {
-                        changedFields.add(lastAccessedFieldIndex);
-                        nextCandidateFound = true;
-                        }//ALYAS
-                    } else{
                         candidateVector[lastAccessedFieldIndex]++;
                         changedFields.add(lastAccessedFieldIndex);
                         nextCandidateFound = true;
-                    }
+                        }
                     //4
-                    } else {
-
+                    }else {
                         int nextInstanceIndex = fDomain.getIndexOfFirstObjectInNextClassDomain(currentInstanceIndex);
                         if (nextInstanceIndex == -1) { //We reached to the end
                             candidateVector[lastAccessedFieldIndex] = 0;
@@ -267,7 +272,8 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                     }
                 }//end else loking for obj
             }//end else check for new CV
-            if (toJump) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
+            if (toJump >= 0 && toJump < 10) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
+            //if (toJump) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
         }// end while
 
         if (nextCandidateFound) {
