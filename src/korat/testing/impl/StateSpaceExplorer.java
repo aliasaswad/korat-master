@@ -162,7 +162,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                 //1
                     if(toJump >= 0 && toJump < 10){
                 //if(toJump){
-                 //switch (toJump) {
+                 // switch (toJump) {
                  //   case 0:
                            if (isSecondCV &&
                                 lastAccessedFieldIndex > maxInstanceIndexForFieldDomain
