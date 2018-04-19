@@ -324,7 +324,10 @@ public class TestCradle extends AbstractTestCaseGenerator implements ITester {
         }
         
         notifyTestFinished(totalExplored, validCasesGenerated);
-
+        //Alyas
+        //System.out.println("AAAAAA");
+        if ((config.jump < 1 || config.jump > 4) && config.jump != -1) System.out.println("No CV jump happened, arg= " + config.jump);
+        else System.out.println ("CV jump otp done");
         System.out.println("Total explored: " + totalExplored);
         System.out.println("New found: " + validCasesGenerated);
 

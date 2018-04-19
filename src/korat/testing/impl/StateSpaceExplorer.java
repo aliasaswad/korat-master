@@ -70,6 +70,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
         startCV = fin.getInitialCandidateVector();
 
         endCV = null;
+        
     }
 
     /*
@@ -160,16 +161,19 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                         || !cDomain.isIncludedInIsomorphismChecking()) {
                     //if(!fDomain.isPrimitiveType()) System.out.println("primitive");
                 //1
-                    if(toJump >= 0 && toJump < 10){
+                    if(toJump > 0 && toJump < 5){
                 //if(toJump){
                  // switch (toJump) {
                  //   case 0:
-                           if (isSecondCV &&
-                                lastAccessedFieldIndex > maxInstanceIndexForFieldDomain
-                                && lastAccessedFieldIndex < prevlastAccessedFieldIndex
+                        /**We have 4 status within the jump option 1=All(ABC), 2=A, 3=AB, 4=AC
+                        Both case A & B for primitive except C for Obj.s
+                        */
+
+                        //CASE A
+                           if (isSecondCV && lastAccessedFieldIndex > maxInstanceIndexForFieldDomain && lastAccessedFieldIndex < prevlastAccessedFieldIndex
                                 && !fDomain.isPrimitiveType()
                                 /*|| TestCradle.predicateOK*/ ){  
-                                //isSecondCV req, (lastAccessedFieldIndex > maxInstanceIndexForFieldDomain) opt !fDomain.isPrimitiveType() opt
+                                //isSecondCV req, (lastAccessedFieldIndex > maxInstanceIndexForFieldDomain) req !fDomain.isPrimitiveType() opt
                                 //, && lastAccessedFieldIndex < prevlastAccessedFieldIndex opt
                                 int max = 0;
                                 for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
@@ -182,7 +186,8 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                                 else candidateVector[lastAccessedFieldIndex] = max;
                             }
                             else candidateVector[lastAccessedFieldIndex]++;
-                    
+                        //CASE B
+                        if(toJump == 1 || toJump == 3){
                             if (isSecondCV) {
                                 //if (maxInstanceIndexForFieldDomain % 2 == 0) candidateVector[lastAccessedFieldIndex]++; //even jump
                                 //else candidateVector[lastAccessedFieldIndex] = candidateVector[lastAccessedFieldIndex] + 2;
@@ -196,7 +201,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                                     //alyasFrstPrdOk = true;
                                 }
                             }
-                    
+                        }//end if for case B where 
                             isSecondCV = true;
                             if (candidateVector[lastAccessedFieldIndex] > maxInstanceIndexForFieldDomain) {
                                 candidateVector[lastAccessedFieldIndex] = 0;
@@ -233,7 +238,8 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                     int currentInstanceIndexInClassDomain = fDomain.getClassDomainIndexFor(currentInstanceIndex);
                     //3
                     if (currentInstanceIndexInClassDomain <= maxInstanceIndexInClassDomain) {
-                        if (toJump >= 0 && toJump < 10){
+                        //CASE C
+                        if (toJump == 1 || toJump == 4){
                             int max = 0;
                             for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
                                 if (candidateVector[ktr] > max) max = candidateVector[ktr];
@@ -272,7 +278,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                     }
                 }//end else loking for obj
             }//end else check for new CV
-            if (toJump >= 0 && toJump < 10) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
+            if (toJump > 0 && toJump < 5) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
             //if (toJump) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
         }// end while
 
