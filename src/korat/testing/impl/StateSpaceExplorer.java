@@ -172,26 +172,32 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                         //CASE A
                            if (isSecondCV && lastAccessedFieldIndex > maxInstanceIndexForFieldDomain && lastAccessedFieldIndex < prevlastAccessedFieldIndex
                                 && !fDomain.isPrimitiveType()
-                                /*|| TestCradle.predicateOK*/ ){  
-                                //isSecondCV req, (lastAccessedFieldIndex > maxInstanceIndexForFieldDomain) req !fDomain.isPrimitiveType() opt
+                                //&& TestCradle.predicateOK
+                                ){  
+                                //isSecondCV req, (lastAccessedFieldIndex > maxInstanceIndexForFieldDomain) req !fDomain.isPrimitiveType() reg at redtree
                                 //, && lastAccessedFieldIndex < prevlastAccessedFieldIndex opt
+                                //System.out.println("Ok0 ");
                                 int max = 0;
                                 for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
                                     if (candidateVector[ktr] > max && candidateVector[ktr] != maxInstanceIndexForFieldDomain)
                                     max = candidateVector[ktr];
                                 }
-                                if(candidateVector[lastAccessedFieldIndex] == max) 
+                                if(candidateVector[lastAccessedFieldIndex] == max) { 
                                 //candidateVector[lastAccessedFieldIndex] = max;
                                     candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
+                                    //System.out.println("Okmax");
+                                }
                                 else candidateVector[lastAccessedFieldIndex] = max;
                             }
                             else candidateVector[lastAccessedFieldIndex]++;
                         //CASE B
                         if(toJump == 1 || toJump == 3){
-                            if (isSecondCV) {
+                            //if (isSecondCV) {
                                 //if (maxInstanceIndexForFieldDomain % 2 == 0) candidateVector[lastAccessedFieldIndex]++; //even jump
                                 //else candidateVector[lastAccessedFieldIndex] = candidateVector[lastAccessedFieldIndex] + 2;
+                                //System.out.println("Ok ");
                                 if (TestCradle.predicateOK && !fDomain.isPrimitiveType()) {
+                                    //System.out.println("Ok1 ");
                                     int max = 0;
                                     for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
                                         if (candidateVector[ktr] > max && candidateVector[ktr] != maxInstanceIndexForFieldDomain)
@@ -200,7 +206,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                                     candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
                                     //alyasFrstPrdOk = true;
                                 }
-                            }
+                            //}
                         }//end if for case B where 
                             isSecondCV = true;
                             if (candidateVector[lastAccessedFieldIndex] > maxInstanceIndexForFieldDomain) {
@@ -220,7 +226,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                     }
                 //2 end check for premitive & !Iso
                 } else { //We looking for Objs fields CV
-
+                    //System.out.println("Ok2 ");
                     for (int i = 0; i < numberOfAccessedFields; i++) {
                         int accessedFieldIndex = accessedFields.get(i);
                         int activeInstanceIndex = candidateVector[accessedFieldIndex];
