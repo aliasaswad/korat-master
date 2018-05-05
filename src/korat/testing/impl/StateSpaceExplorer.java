@@ -45,6 +45,8 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
 
     protected boolean isFirstGenCV = false;
 
+    protected boolean isPrevPredCVOK = false;
+
     //protected boolean alyasFrstPrdOk = false;
     
     protected int prevlastAccessedFieldIndex = 0;
@@ -163,36 +165,40 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                         || !cDomain.isIncludedInIsomorphismChecking()) {
                     //if(!fDomain.isPrimitiveType()) System.out.println("primitive");
                 //1
-                    if(toJump > 0 && toJump < 5){
-                //if(toJump){
-                 // switch (toJump) {
-                 //   case 0:
-                        /**We have 4 status within the jump option 1=All(ABC), 2=A, 3=AB, 4=AC
+                    if(toJump > 0 && toJump < 5 ){
+                        /**We have 4 status within the jump option 1=All(ABC), 2=A, 3=AB, 4=AC, 5= C 
                         Both case A & B for primitive except C for Obj.s
                         */
-
+                        //System.out.print(lastAccessedFieldIndex +"-"+ prevlastAccessedFieldIndex+"+");
                         //CASE A
+                        //System.out.print(isSecondCV +"+"+ lastAccessedFieldIndex +"+"+maxInstanceIndexForFieldDomain +"+"+prevlastAccessedFieldIndex +"+"+ fDomain.isPrimitiveType()+"+"+ isFirstGenCV +"+"+ isPrevPredCVOK );
                            if (isSecondCV && lastAccessedFieldIndex > maxInstanceIndexForFieldDomain && lastAccessedFieldIndex < prevlastAccessedFieldIndex
                                 && !fDomain.isPrimitiveType()
                                 && isFirstGenCV
+                                && isPrevPredCVOK == false
                                 //&& TestCradle.predicateOK
                                 ){  
                                 //isSecondCV req, (lastAccessedFieldIndex > maxInstanceIndexForFieldDomain) req !fDomain.isPrimitiveType() reg at redtree
                                 //, && lastAccessedFieldIndex < prevlastAccessedFieldIndex opt
-                                //System.out.println("Ok0 ");
+                                //System.out.print(lastAccessedFieldIndex + prevlastAccessedFieldIndex+"Ok0 ");
                                 int max = 0;
                                 for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
                                     if (candidateVector[ktr] > max && candidateVector[ktr] != maxInstanceIndexForFieldDomain)
                                     max = candidateVector[ktr];
                                 }
-                                if(candidateVector[lastAccessedFieldIndex] == max) { 
-                                //candidateVector[lastAccessedFieldIndex] = max;
-                                    candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
+                                
+                                if(lastAccessedFieldIndex < prevlastAccessedFieldIndex)  {candidateVector[lastAccessedFieldIndex] = max;
+                                }else candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
+                                //if(candidateVector[lastAccessedFieldIndex] == max) {
+                                //    candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
                                     //System.out.println("Okmax");
-                                }
-                                else candidateVector[lastAccessedFieldIndex] = max;
+                                //}
+                                //else candidateVector[lastAccessedFieldIndex] = max;
+                                //System.out.print("Pr"+isPrevPredCVOK);
                             }
-                            else candidateVector[lastAccessedFieldIndex]++;
+                            else{ candidateVector[lastAccessedFieldIndex]++; 
+                                  //System.out.print("PrEls"+isPrevPredCVOK);
+                                }
                         //CASE B
                         if(toJump == 1 || toJump == 3){
                             //if (isSecondCV) {
@@ -200,6 +206,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                                 //else candidateVector[lastAccessedFieldIndex] = candidateVector[lastAccessedFieldIndex] + 2;
                                 //System.out.println("Ok ");
                                 if (TestCradle.predicateOK && !fDomain.isPrimitiveType()
+                                    && isPrevPredCVOK == false
                                     //&& isFirstGenCV
                                     ) {
                                     //System.out.println("Ok1 ");
@@ -210,6 +217,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                                     }
                                     candidateVector[lastAccessedFieldIndex] = maxInstanceIndexForFieldDomain;
                                     //alyasFrstPrdOk = true;
+                                    //System.out.print("PrJ1OR"+isPrevPredCVOK);
                                 }
                             //}
                         }//end if for case B where 
@@ -225,6 +233,7 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                     //        break;    
                     }//end if toJump
                     else{
+                        //System.out.print("OkN ");
                         candidateVector[lastAccessedFieldIndex]++;
                         changedFields.add(lastAccessedFieldIndex);
                         nextCandidateFound = true;
@@ -248,18 +257,27 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
 
                     int currentInstanceIndexInClassDomain = fDomain.getClassDomainIndexFor(currentInstanceIndex);
                     //3
+                    //if (TestCradle.predicateOK) isPrevPredCVOK = true;
+                    //else isPrevPredCVOK = false; 
                     if (currentInstanceIndexInClassDomain <= maxInstanceIndexInClassDomain) {
                         //CASE C
-                        if (toJump == 1 || toJump == 4 || toJump == 5){
+                        if ((toJump == 1 || toJump == 4 || toJump == 5)
+                            && isPrevPredCVOK == false
+                            ){
+                            //System.out.print("!Pr"+isPrevPredCVOK);
                             int max = 0;
                             for (int ktr = 0; ktr < lastAccessedFieldIndex; ktr++) {
                                 if (candidateVector[ktr] > max) max = candidateVector[ktr];
                             }
+                            //System.out.print("!PrJ");
                             candidateVector[lastAccessedFieldIndex]++;
                             if (TestCradle.predicateOK && lastAccessedFieldIndex < prevlastAccessedFieldIndex
+                            //if (lastAccessedFieldIndex < prevlastAccessedFieldIndex
                                 //&& isFirstGenCV
                                 ) {
                                 candidateVector[lastAccessedFieldIndex] = max;
+                                //System.out.println("Ok31 ");
+
                             }
                             if (candidateVector[lastAccessedFieldIndex] > maxInstanceIndexForFieldDomain) { 
                                 candidateVector[lastAccessedFieldIndex] = 0;
@@ -269,10 +287,13 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                                 changedFields.add(lastAccessedFieldIndex);
                                 nextCandidateFound = true;
                             }//ALYAS
+                            //if (candidateVector[11] == 5) System.out.print("Here");
                         }else {
                         candidateVector[lastAccessedFieldIndex]++;
                         changedFields.add(lastAccessedFieldIndex);
                         nextCandidateFound = true;
+                        //System.out.print("!PrEls"+currentInstanceIndexInClassDomain + maxInstanceIndexInClassDomain+isPrevPredCVOK);
+
                         }
                     //4
                     }else {
@@ -291,8 +312,14 @@ public class StateSpaceExplorer implements IKoratSearchStrategy {
                     }
                 }//end else looking for obj
             }//end else check for new CV
-            if (toJump > 0 && toJump < 6) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
-            if (TestCradle.predicateOK) isFirstGenCV = true;
+            /*if (toJump > 0 && toJump < 6)*/ prevlastAccessedFieldIndex = lastAccessedFieldIndex;
+            if (TestCradle.predicateOK) {
+                isFirstGenCV = true; //System.out.print(candidateVector[11]+"OK");
+                isPrevPredCVOK = true;
+            }    
+            else {isPrevPredCVOK = false; //    System.out.print("NK");
+            }
+            //ant currentInstanceIndexSystem.out.print("+"+prevlastAccessedFieldIndex+"+");
             //if (toJump) prevlastAccessedFieldIndex = lastAccessedFieldIndex;
         }// end while
 

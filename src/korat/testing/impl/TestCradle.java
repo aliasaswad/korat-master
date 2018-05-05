@@ -278,8 +278,10 @@ public class TestCradle extends AbstractTestCaseGenerator implements ITester {
             System.out.println(stateSpace);
         }
         int a_flag = 0;
-        while (!interrupted) {
-
+        long t1 = System.currentTimeMillis();
+        //while (!interrupted) {
+        //while (t2-t1 <= ) {    
+        while (totalExplored <= 27209) {
             testCase = stateSpaceExplorer.nextTestCase();
 
             //alyas
@@ -312,7 +314,7 @@ public class TestCradle extends AbstractTestCaseGenerator implements ITester {
                     stateSpaceExplorer.reportCurrentAsValid();
                 }
             }
-
+            long t2 = System.currentTimeMillis();
         }
 
         if (dos != null) {
